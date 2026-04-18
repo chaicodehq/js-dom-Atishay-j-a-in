@@ -68,12 +68,132 @@
  */
 export function setupGuestList(containerElement) {
   // Your code here
+  if(containerElement=== null || containerElement === undefined){
+    return null
+  }
+  containerElement.addEventListener("click",(event)=>{
+    let guestList= document.querySelectorAll(".guest-item")
+    let idx=-1
+    for (let index = 0; index < guestList.length; index++) {
+      const element = guestList[index];
+      if(element.hasChildNodes(event.target)){
+        idx=index
+      }
+    }
+    guestList[idx].remove()
+  })
+  let addGuest=function(name, side){
+    let div = document.createElement('div')
+    div.setAttribute("class","guest-item")
+    div.setAttribute("data-name",name)
+    div.setAttribute("data-side",side)
+    let span = document.createElement("span")
+    span.textContent= name
+    div.appendChild(span)
+    let btn = document.createElement("button")
+    btn.setAttribute("class","remove-btn")
+    btn.textContent="Remove"
+    div.appendChild(btn)
+    containerElement.appendChild(div)
+    return div
+  }
+  let removeGuest= function(name){
+     if (!containerElement || !name) return false;
+    const guest = containerElement.querySelector(
+        `.guest-item[data-name="${name}"]`
+    );
+    if (guest) {
+        guest.remove();
+        return true;
+    }
+
+    return false;
+  }
+  let getGuests= function(){
+    let children  = containerElement.querySelectorAll(".guest-item")
+    let array= []
+    for (let index = 0; index < children.length; index++) {
+      const wanted = children[index];
+      array.push({name: wanted.getAttribute("data-name"),side:wanted.getAttribute("data-side")})
+    }
+    
+    return array
+  }
+  return {addGuest,removeGuest,getGuests}
 }
 
 export function setupThemeSelector(containerElement, previewElement) {
   // Your code here
+  if(containerElement=== null || containerElement === undefined || previewElement===null || previewElement=== undefined){
+    return null
+  }
+  let btn = document.createElement("button")
+  let btn2 = document.createElement("button")
+  let btn3 = document.createElement("button")
+  btn.setAttribute("class","theme-btn")
+  btn2.setAttribute("class","theme-btn")
+  btn3.setAttribute("class","theme-btn")
+  btn.textContent = "traditional"
+  btn2.textContent= "modern"
+  btn3.textContent="royal"
+  btn.setAttribute("data-theme","traditional")
+  btn2.setAttribute("data-theme","modern")
+  btn3.setAttribute("data-theme","royal"
+  )
+  containerElement.appendChild(btn)
+  containerElement.appendChild(btn2)
+  containerElement.appendChild(btn3)
+  containerElement.addEventListener("click",(event)=>{
+    let theme = event.target.getAttribute("data-theme")
+    previewElement.setAttribute("class",theme)
+    previewElement.setAttribute("data-theme",theme)
+  })
+  let getTheme=  function(){
+    return previewElement.getAttribute("data-theme")?previewElement.getAttribute("data-theme"):null
+  }
+  return {getTheme}
 }
 
 export function setupCardEditor(cardElement) {
   // Your code here
+  if(cardElement=== null || cardElement === undefined){
+    return null
+  }
+   let currentEditing = null;
+
+    cardElement.addEventListener("click", (e) => {
+        const editableEl = e.target.closest("[data-editable]");
+
+        // 🔹 Case 1: Click on editable element
+        if (editableEl && cardElement.contains(editableEl)) {
+            
+            // remove previous editing
+            if (currentEditing) {
+                currentEditing.classList.remove("editing");
+                currentEditing.contentEditable = "false";
+            }
+
+            // set new editing
+            editableEl.contentEditable = "true";
+            editableEl.classList.add("editing");
+            currentEditing = editableEl;
+
+            return;
+        }
+
+        // 🔹 Case 2: Click on card but NOT editable
+        if (e.target === cardElement) {
+            if (currentEditing) {
+                currentEditing.classList.remove("editing");
+                currentEditing.contentEditable = "false";
+                currentEditing = null;
+            }
+        }
+    });
+
+  let getContent= function(field){
+    let element = document.querySelector(`[data-editable="${field}"`)
+    return element?element.textContent:null
+  }
+  return {getContent}
 }
